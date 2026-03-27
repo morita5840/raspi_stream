@@ -16,7 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  fmt:
+    name: Check formatting
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -27,13 +28,39 @@ jobs:
       - name: Setup CI environment
         uses: ./.github/actions/setup-rust-gstreamer
         with:
-          rust-components: rustfmt,clippy
+          rust-components: rustfmt
 
       - name: Check formatting
         run: cargo fmt --check
 
+  clippy:
+    name: Run Clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup CI environment
+        uses: ./.github/actions/setup-rust-gstreamer
+        with:
+          rust-components: clippy
+
       - name: Run Clippy
         run: cargo clippy --target x86_64-unknown-linux-gnu --all-targets -- -D warnings
+
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup CI environment
+        uses: ./.github/actions/setup-rust-gstreamer
 
       - name: Run unit tests
         run: cargo test --target x86_64-unknown-linux-gnu
