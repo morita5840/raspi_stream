@@ -64,9 +64,11 @@ git clone https://github.com/morita5840/raspi_stream.git
 cd raspi_stream
 ```
 
-### 3. まずは `videotest` で起動する
+### 3. `videotest` で動作確認する
 
 最初の確認はダミー映像が最も確実です.
+
+#### 起動
 
 ```bash
 cargo run --release -- --source videotest --pattern ball --host 127.0.0.1 --port 8554
@@ -90,9 +92,20 @@ cargo run --release -- --source videotest --pattern ball --host 0.0.0.0 --port 8
 rtsp://<pi-ip>:8554/stream
 ```
 
-### 4. 実カメラで起動する
+#### 確認
 
-手元のデバイスに応じてソースを切り替えます.
+- VLC などで `rtsp://127.0.0.1:8554/stream` に接続します.
+- リモート接続時は `rtsp://<pi-ip>:8554/stream` を使います.
+
+#### 停止
+
+- Ctrl+C で停止します.
+
+### 4. 実カメラで試す
+
+`videotest` で確認できたら, 手元のデバイスに応じて実カメラへ切り替えます.
+
+#### 起動
 
 ```bash
 # IMX500 実機カメラ
@@ -111,12 +124,12 @@ cargo run --release -- --source v4l2 --host 127.0.0.1 --port 8554
 cargo run --release -- --source v4l2 --verbose --host 127.0.0.1 --port 8554
 ```
 
-### 5. クライアントで確認する
+#### 確認
 
 - VLC などで `rtsp://127.0.0.1:8554/stream` に接続します.
 - リモート接続時は `rtsp://<pi-ip>:8554/stream` を使います.
 
-### 6. 停止する
+#### 停止
 
 - Ctrl+C で停止します.
 
