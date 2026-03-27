@@ -32,6 +32,7 @@ use xz2::read::XzDecoder;
 const IMAGE_URL: &str = "https://downloads.raspberrypi.com/raspios_lite_arm64_latest";
 const SHA256_URL: &str = "https://downloads.raspberrypi.com/raspios_lite_arm64_latest.sha256";
 const VERSION_FILE_NAME: &str = "version.txt";
+const RPI_TARGET_TRIPLE: &str = "aarch64-unknown-linux-gnu";
 const DEFAULT_DEBIAN_SUITE: &str = "bookworm";
 const DEBIAN_MIRROR_URL: &str = "https://deb.debian.org/debian";
 const REQUIRED_SYSROOT_PACKAGES: &[&str] = &[
@@ -87,6 +88,10 @@ fn is_raspberry_pi() -> bool {
 fn run() -> Result<()> {
     emit_rerun_hints();
 
+    if !should_prepare_sysroot()? {
+        return Ok(());
+    }
+
     if env_flag("RPI_SYSROOT_SKIP") {
         println!("cargo:warning=Skipping Raspberry Pi sysroot setup because RPI_SYSROOT_SKIP=1");
         return Ok(());
@@ -131,6 +136,12 @@ fn emit_rerun_hints() {
     println!("cargo:rerun-if-env-changed=RPI_SYSROOT_SKIP");
     println!("cargo:rerun-if-env-changed=RPI_SYSROOT_FORCE_CHECK");
     println!("cargo:rerun-if-env-changed=RPI_SYSROOT_DEBIAN_SUITE");
+}
+
+/// 現在の Cargo target で sysroot 準備が必要かを判定する.
+fn should_prepare_sysroot() -> Result<bool> {
+    let target = env::var("TARGET").context("TARGET is not set")?;
+    Ok(target == RPI_TARGET_TRIPLE)
 }
 
 /// 環境変数を真偽値フラグとして解釈する.
