@@ -1,0 +1,32 @@
+/target/
+/debug/
+
+# Vendor/sysroot cache and extracted sysroot
+/vendor/.rpi-sysroot-cache
+/vendor/rpi-sysroot/
+
+# Build scripts / generated files
+/build/
+/**/*.d
+
+# Binary outputs
+/raspi_stream
+libraspi_stream*
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs and temp
+*.log
+*.tmp
+.temp/
+
+# Certificates/keys
+*.pem
+*.key
+
+# macOS
+.DS_Store

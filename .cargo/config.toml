@@ -1,0 +1,17 @@
+[env]
+# 既定ターゲットは固定せず、`cargo test` / `cargo build` は実行環境の
+# ホストターゲットを使う。Raspberry Pi 向けクロスビルド時だけ
+# `--target aarch64-unknown-linux-gnu` を明示する。
+#
+# `pkg-config` 系クレート向けの aarch64 クロスビルド設定
+PKG_CONFIG_ALLOW_CROSS_aarch64_unknown_linux_gnu = "1"
+PKG_CONFIG_aarch64_unknown_linux_gnu = { value = "scripts/aarch64-linux-gnu-pkg-config", relative = true }
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+ar = "aarch64-linux-gnu-ar"
+rustflags = [
+	"-Clink-arg=--sysroot=vendor/rpi-sysroot",
+	"-Clink-arg=-Wl,-rpath-link,vendor/rpi-sysroot/usr/lib/aarch64-linux-gnu",
+	"-Clink-arg=-Wl,-rpath-link,vendor/rpi-sysroot/lib/aarch64-linux-gnu",
+]

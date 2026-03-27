@@ -1,0 +1,23 @@
+[package]
+name = "raspi_stream"
+version = "0.1.0"
+edition = "2024"
+description = "RTSP streaming library/application for Raspberry Pi using GStreamer"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/morita5840/raspi_stream"
+publish = false
+keywords = ["raspberry-pi", "rtsp", "gstreamer", "camera", "streaming"]
+
+[dependencies]
+gstreamer = "0.23"
+gstreamer-rtsp-server = "0.23"
+
+[build-dependencies]
+anyhow = "1"
+pathdiff = "0.2"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
+sha2 = "0.10"
+tempfile = "3"
+walkdir = "2"
+xz2 = "0.1"
