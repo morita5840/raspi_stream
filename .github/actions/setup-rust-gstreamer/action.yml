@@ -6,6 +6,10 @@ inputs:
     description: Comma-separated Rust components to install.
     required: false
     default: ''
+  extra-system-packages:
+    description: Space-separated additional apt packages to install.
+    required: false
+    default: ''
   rust-target:
     description: Rust target triple to install.
     required: false
@@ -17,12 +21,21 @@ runs:
     - name: Install system dependencies
       shell: bash
       run: |
-        sudo apt update
-        sudo apt install -y \
-          pkg-config \
-          libgstreamer1.0-dev \
-          libgstreamer-plugins-base1.0-dev \
+        extra_packages="${{ inputs.extra-system-packages }}"
+        packages=(
+          pkg-config
+          libgstreamer1.0-dev
+          libgstreamer-plugins-base1.0-dev
           libgstrtspserver-1.0-dev
+        )
+
+        if [[ -n "$extra_packages" ]]; then
+          read -r -a extra_array <<< "$extra_packages"
+          packages+=("${extra_array[@]}")
+        fi
+
+        sudo apt update
+        sudo apt install -y "${packages[@]}"
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable

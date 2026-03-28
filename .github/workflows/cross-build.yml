@@ -1,0 +1,63 @@
+name: Cross Build
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - build.rs
+      - .cargo/config.toml
+      - src/**
+      - scripts/**
+      - .github/workflows/cross-build.yml
+      - .github/actions/setup-rust-gstreamer/action.yml
+      - vendor/rpi-sysroot/version.txt
+  push:
+    branches:
+      - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - build.rs
+      - .cargo/config.toml
+      - src/**
+      - scripts/**
+      - .github/workflows/cross-build.yml
+      - .github/actions/setup-rust-gstreamer/action.yml
+      - vendor/rpi-sysroot/version.txt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cross-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  aarch64-build:
+    name: Build aarch64 target
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup cross-build environment
+        uses: ./.github/actions/setup-rust-gstreamer
+        with:
+          rust-target: aarch64-unknown-linux-gnu
+          extra-system-packages: >-
+            gcc-aarch64-linux-gnu
+            binutils-aarch64-linux-gnu
+            parted
+            e2fsprogs
+            xz-utils
+            dpkg-dev
+            python3
+
+      - name: Build aarch64 target
+        run: cargo build --target aarch64-unknown-linux-gnu
