@@ -7,7 +7,6 @@ on:
     paths:
       - Cargo.toml
       - Cargo.lock
-      - build.rs
       - .cargo/config.toml
       - src/**
       - scripts/**
@@ -20,7 +19,6 @@ on:
     paths:
       - Cargo.toml
       - Cargo.lock
-      - build.rs
       - .cargo/config.toml
       - src/**
       - scripts/**
