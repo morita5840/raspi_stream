@@ -6,6 +6,10 @@ inputs:
     description: Comma-separated Rust components to install.
     required: false
     default: ''
+  install-system-packages:
+    description: Whether to install apt packages required for GStreamer-based builds.
+    required: false
+    default: 'true'
   extra-system-packages:
     description: Space-separated additional apt packages to install.
     required: false
@@ -19,6 +23,7 @@ runs:
   using: composite
   steps:
     - name: Install system dependencies
+      if: ${{ inputs.install-system-packages == 'true' }}
       shell: bash
       run: |
         extra_packages="${{ inputs.extra-system-packages }}"
