@@ -11,7 +11,7 @@ on:
       - src/**
       - scripts/**
       - .github/workflows/cross-build.yml
-      - .github/actions/setup-rust-gstreamer/action.yml
+      - .github/actions/**
       - vendor/rpi-sysroot/version.txt
   push:
     branches:
@@ -23,7 +23,7 @@ on:
       - src/**
       - scripts/**
       - .github/workflows/cross-build.yml
-      - .github/actions/setup-rust-gstreamer/action.yml
+      - .github/actions/**
       - vendor/rpi-sysroot/version.txt
   workflow_dispatch:
 
@@ -39,35 +39,17 @@ jobs:
     name: Build aarch64 target
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      RUST_TARGET: aarch64-unknown-linux-gnu
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Cache Raspberry Pi sysroot artifacts
-        uses: actions/cache@v4
+      - name: Setup Raspberry Pi cross-build environment
+        uses: ./.github/actions/setup-rpi-cross-build
         with:
-          path: vendor/.rpi-sysroot-cache
-          key: ${{ runner.os }}-rpi-sysroot-${{ hashFiles('vendor/rpi-sysroot/version.txt', 'scripts/ensure-rpi-sysroot.sh') }}
-          restore-keys: |
-            ${{ runner.os }}-rpi-sysroot-
-
-      - name: Setup cross-build environment
-        uses: ./.github/actions/setup-rust-gstreamer
-        with:
-          install-gstreamer-packages: 'false'
-          rust-target: aarch64-unknown-linux-gnu
-          extra-system-packages: >-
-            gcc-aarch64-linux-gnu
-            binutils-aarch64-linux-gnu
-            parted
-            e2fsprogs
-            xz-utils
-            dpkg-dev
-            python3
-
-      - name: Prepare Raspberry Pi sysroot
-        run: ./scripts/ensure-rpi-sysroot.sh
+          rust-target: ${{ env.RUST_TARGET }}
 
       - name: Build aarch64 target
-        run: cargo build --target aarch64-unknown-linux-gnu
+        run: cargo build --target "${RUST_TARGET}"
