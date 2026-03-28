@@ -44,6 +44,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Cache Raspberry Pi sysroot artifacts
+        uses: actions/cache@v4
+        with:
+          path: vendor/.rpi-sysroot-cache
+          key: ${{ runner.os }}-rpi-sysroot-${{ hashFiles('vendor/rpi-sysroot/version.txt', 'scripts/ensure-rpi-sysroot.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-rpi-sysroot-
+
       - name: Setup cross-build environment
         uses: ./.github/actions/setup-rust-gstreamer
         with:
