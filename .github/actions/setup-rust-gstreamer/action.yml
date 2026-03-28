@@ -10,6 +10,10 @@ inputs:
     description: Whether to install apt packages required for GStreamer-based builds.
     required: false
     default: 'true'
+  install-gstreamer-packages:
+    description: Whether to install host-side GStreamer development packages.
+    required: false
+    default: 'true'
   extra-system-packages:
     description: Space-separated additional apt packages to install.
     required: false
@@ -29,10 +33,15 @@ runs:
         extra_packages="${{ inputs.extra-system-packages }}"
         packages=(
           pkg-config
-          libgstreamer1.0-dev
-          libgstreamer-plugins-base1.0-dev
-          libgstrtspserver-1.0-dev
         )
+
+        if [[ "${{ inputs.install-gstreamer-packages }}" == 'true' ]]; then
+          packages+=(
+            libgstreamer1.0-dev
+            libgstreamer-plugins-base1.0-dev
+            libgstrtspserver-1.0-dev
+          )
+        fi
 
         if [[ -n "$extra_packages" ]]; then
           read -r -a extra_array <<< "$extra_packages"
