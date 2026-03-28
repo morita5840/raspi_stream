@@ -6,10 +6,6 @@ inputs:
     description: Comma-separated Rust components to install.
     required: false
     default: ''
-  enable-cache:
-    description: Whether to restore and save Rust build artifacts.
-    required: false
-    default: 'true'
   rust-target:
     description: Rust target triple to install.
     required: false
@@ -35,5 +31,4 @@ runs:
         targets: ${{ inputs.rust-target }}
 
     - name: Cache Rust build artifacts
-      if: ${{ inputs.enable-cache == 'true' }}
       uses: Swatinem/rust-cache@v2
