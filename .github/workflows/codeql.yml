@@ -39,15 +39,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Setup CI environment
+        if: matrix.language == 'rust'
+        uses: ./.github/actions/setup-rust-gstreamer
+        with:
+          enable-cache: 'false'
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
-
-      - name: Setup CI environment
-        if: matrix.language == 'rust'
-        uses: ./.github/actions/setup-rust-gstreamer
 
       - name: Build Rust targets
         if: matrix.language == 'rust'
