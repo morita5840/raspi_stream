@@ -4,9 +4,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - .cargo/config.toml
+      - src/**
+      - .github/workflows/ci.yml
+      - .github/actions/setup-rust-gstreamer/action.yml
   pull_request:
     branches:
       - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - .cargo/config.toml
+      - src/**
+      - .github/workflows/ci.yml
+      - .github/actions/setup-rust-gstreamer/action.yml
 
 permissions:
   contents: read
