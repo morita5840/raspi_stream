@@ -1,4 +1,4 @@
-name: CodeQL Advanced
+name: CodeQL Analysis
 
 on:
   push:
@@ -9,10 +9,8 @@ on:
       - Cargo.lock
       - .cargo/config.toml
       - src/**
-      - .github/workflows/codeql.yml
-      - .github/workflows/ci.yml
-      - .github/workflows/cross-build.yml
       - .github/actions/**
+      - .github/workflows/**
   pull_request:
     branches:
       - main
@@ -21,10 +19,8 @@ on:
       - Cargo.lock
       - .cargo/config.toml
       - src/**
-      - .github/workflows/codeql.yml
-      - .github/workflows/ci.yml
-      - .github/workflows/cross-build.yml
       - .github/actions/**
+      - .github/workflows/**
   workflow_dispatch:
   schedule:
     - cron: '0 18 * * 0'
@@ -36,12 +32,12 @@ permissions:
   security-events: write
 
 concurrency:
-  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  group: codeql-analysis-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: CodeQL Analysis (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

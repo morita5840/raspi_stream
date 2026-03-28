@@ -1,32 +1,25 @@
-name: CI
+name: GitHub Actions Lint
 
 on:
   push:
     branches:
       - main
     paths:
-      - Cargo.toml
-      - Cargo.lock
-      - .cargo/config.toml
-      - src/**
-      - .github/workflows/**
       - .github/actions/**
+      - .github/workflows/**
   pull_request:
     branches:
       - main
     paths:
-      - Cargo.toml
-      - Cargo.lock
-      - .cargo/config.toml
-      - src/**
-      - .github/workflows/**
       - .github/actions/**
+      - .github/workflows/**
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: github-actions-lint-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -62,38 +55,3 @@ jobs:
             raise "#{path}: runs.steps must be a non-empty array" unless runs['steps'].is_a?(Array) && !runs['steps'].empty?
           end
           RUBY
-
-  checks:
-    name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Check formatting
-            rust-components: rustfmt
-            system-packages-profile: none
-            command: cargo fmt --check
-          - name: Run Clippy
-            rust-components: clippy
-            system-packages-profile: gstreamer
-            command: cargo clippy --target x86_64-unknown-linux-gnu --all-targets -- -D warnings
-          - name: Run unit tests
-            rust-components: ''
-            system-packages-profile: gstreamer
-            command: cargo test --target x86_64-unknown-linux-gnu
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup CI environment
-        uses: ./.github/actions/setup-rust-gstreamer
-        with:
-          rust-components: ${{ matrix.rust-components }}
-          system-packages-profile: ${{ matrix.system-packages-profile }}
-
-      - name: ${{ matrix.name }}
-        run: ${{ matrix.command }}

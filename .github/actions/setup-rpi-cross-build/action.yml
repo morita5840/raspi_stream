@@ -10,11 +10,23 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Resolve Raspberry Pi sysroot cache key
+      id: sysroot-cache-key
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        latest_sha=$(./scripts/ensure-rpi-sysroot.sh --print-latest-sha256 || true)
+        if [[ -z "$latest_sha" ]]; then
+          latest_sha=fallback
+        fi
+        echo "latest-sha=$latest_sha" >> "$GITHUB_OUTPUT"
+
     - name: Cache Raspberry Pi sysroot artifacts
       uses: actions/cache@v4
       with:
         path: vendor/.rpi-sysroot-cache
-        key: ${{ runner.os }}-rpi-sysroot-${{ hashFiles('vendor/rpi-sysroot/version.txt', 'scripts/ensure-rpi-sysroot.sh') }}
+        key: ${{ runner.os }}-rpi-sysroot-${{ steps.sysroot-cache-key.outputs.latest-sha }}-${{ hashFiles('scripts/ensure-rpi-sysroot.sh') }}
         restore-keys: |
           ${{ runner.os }}-rpi-sysroot-
 

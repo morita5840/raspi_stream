@@ -41,6 +41,11 @@ fetch_latest_sha256() {
     curl -fsSL "$sha256_url" | awk 'NR == 1 { print tolower($1); exit }'
 }
 
+if [ "${1:-}" = "--print-latest-sha256" ]; then
+    fetch_latest_sha256
+    exit 0
+fi
+
 fetch_remote_size() {
     curl -fsSLI "$1" | awk -F': *' 'tolower($1) == "content-length" { gsub(/\r/, "", $2); size = $2 } END { if (size != "") print size }'
 }

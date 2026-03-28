@@ -1,18 +1,6 @@
-name: Cross Build
+name: Aarch64 Cross Build
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - Cargo.toml
-      - Cargo.lock
-      - .cargo/config.toml
-      - src/**
-      - scripts/**
-      - .github/workflows/cross-build.yml
-      - .github/actions/**
-      - vendor/rpi-sysroot/version.txt
   push:
     branches:
       - main
@@ -22,21 +10,36 @@ on:
       - .cargo/config.toml
       - src/**
       - scripts/**
-      - .github/workflows/cross-build.yml
       - .github/actions/**
-      - vendor/rpi-sysroot/version.txt
+      - .github/workflows/aarch64-cross-build.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - .cargo/config.toml
+      - src/**
+      - scripts/**
+      - .github/actions/**
+      - .github/workflows/aarch64-cross-build.yml
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# Always recheck upstream sysroot metadata so restored fallback caches do not hide updates.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  RPI_SYSROOT_CHECK_INTERVAL_SECONDS: '0'
+
 concurrency:
-  group: cross-build-${{ github.workflow }}-${{ github.ref }}
+  group: aarch64-cross-build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   aarch64-build:
-    name: Build aarch64 target
+    name: Aarch64 Build
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
