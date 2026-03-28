@@ -57,5 +57,8 @@ jobs:
             dpkg-dev
             python3
 
+      - name: Prepare Raspberry Pi sysroot
+        run: ./scripts/ensure-rpi-sysroot.sh
+
       - name: Build aarch64 target
         run: cargo build --target aarch64-unknown-linux-gnu
