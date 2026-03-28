@@ -4,9 +4,27 @@ on:
   push:
     branches:
       - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - .cargo/config.toml
+      - src/**
+      - .github/workflows/codeql.yml
+      - .github/workflows/ci.yml
+      - .github/workflows/cross-build.yml
+      - .github/actions/**
   pull_request:
     branches:
       - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - .cargo/config.toml
+      - src/**
+      - .github/workflows/codeql.yml
+      - .github/workflows/ci.yml
+      - .github/workflows/cross-build.yml
+      - .github/actions/**
   workflow_dispatch:
   schedule:
     - cron: '0 18 * * 0'
