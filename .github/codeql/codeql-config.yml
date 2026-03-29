@@ -3,8 +3,5 @@
 paths-ignore:
   - 'target/**'
   - 'vendor/**'
-  - 'rpi-sysroot/**'
-  - 'debug/**'
   - '.git/**'
-  - 'usr/**'
-  - 'opt/**'
+  - 'scripts/**'
