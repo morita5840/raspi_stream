@@ -36,31 +36,67 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  analyze:
-    name: CodeQL Analysis (${{ matrix.language }})
+  analyze-rust:
+    name: CodeQL Analysis (rust)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - language: actions
-            build-mode: none
-          - language: rust
-            build-mode: none
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Check Rust-related changes
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            rust:
+              - 'src/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - '.cargo/**'
+              - '.github/workflows/codeql.yml'
+
       - name: Initialize CodeQL
+        if: steps.filter.outputs.rust == 'true'
         uses: github/codeql-action/init@v4
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
+          languages: rust
+          build-mode: none
 
       - name: Perform CodeQL Analysis
+        if: steps.filter.outputs.rust == 'true'
+        uses: github/codeql-action.analyze@v4
+        with:
+          category: /language:rust
+
+  analyze-actions:
+    name: CodeQL Analysis (actions)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check workflow changes
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            workflows:
+              - '.github/actions/**'
+              - '.github/workflows/**'
+
+      - name: Initialize CodeQL
+        if: steps.filter.outputs.workflows == 'true'
+        uses: github/codeql-action/init@v4
+        with:
+          languages: actions
+          build-mode: none
+
+      - name: Perform CodeQL Analysis
+        if: steps.filter.outputs.workflows == 'true'
         uses: github/codeql-action/analyze@v4
         with:
-          category: /language:${{ matrix.language }}
+          category: /language:actions
