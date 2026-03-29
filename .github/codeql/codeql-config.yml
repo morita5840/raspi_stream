@@ -1,0 +1,10 @@
+# CodeQL configuration: exclude build artifacts and vendored/third-party files
+# This file is referenced by the workflow to avoid scanning large generated or vendor folders.
+paths-ignore:
+  - 'target/**'
+  - 'vendor/**'
+  - 'rpi-sysroot/**'
+  - 'debug/**'
+  - '.git/**'
+  - 'usr/**'
+  - 'opt/**'

@@ -63,6 +63,7 @@ jobs:
         with:
           languages: rust
           build-mode: none
+          config-file: .github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
         if: steps.filter.outputs.rust == 'true'
@@ -94,6 +95,7 @@ jobs:
         with:
           languages: actions
           build-mode: none
+          config-file: .github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
         if: steps.filter.outputs.workflows == 'true'
