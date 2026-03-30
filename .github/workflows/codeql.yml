@@ -71,7 +71,8 @@ jobs:
         uses: dorny/paths-filter@v4
         with:
           filters: |
-            ${{ matrix.filter_name }}:${{ matrix.filter_paths }}
+            ${{ matrix.filter_name }}:
+            ${{ matrix.filter_paths }}
 
       - name: Decide whether to run
         id: run
