@@ -41,64 +41,58 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Check Rust-related changes
-        id: filter
-        uses: dorny/paths-filter@v4
-        with:
-          filters: |
-            rust:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - kind: rust
+            language: rust
+            filter_name: rust
+            filter_paths: |
               - 'src/**'
               - 'Cargo.toml'
               - 'Cargo.lock'
               - '.cargo/**'
               - '.github/workflows/codeql.yml'
-
-      - name: Initialize CodeQL
-        if: steps.filter.outputs.rust == 'true'
-        uses: github/codeql-action/init@v4
-        with:
-          languages: rust
-          build-mode: none
-          config-file: .github/codeql/codeql-config.yml
-
-      - name: Perform CodeQL Analysis
-        if: steps.filter.outputs.rust == 'true'
-        uses: github/codeql-action/analyze@v4
-        with:
-          category: /language:rust
-
-  analyze-actions:
-    name: CodeQL Analysis (actions)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+          - kind: actions
+            language: actions
+            filter_name: workflows
+            filter_paths: |
+              - '.github/actions/**'
+              - '.github/workflows/**'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Check workflow changes
+      - name: Paths filter
+        if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         id: filter
         uses: dorny/paths-filter@v4
         with:
           filters: |
-            workflows:
-              - '.github/actions/**'
-              - '.github/workflows/**'
+            ${{ matrix.filter_name }}:${{ matrix.filter_paths }}
+
+      - name: Decide whether to run
+        id: run
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=${{ steps.filter.outputs[matrix.filter_name] }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Initialize CodeQL
-        if: steps.filter.outputs.workflows == 'true'
+        if: ${{ steps.run.outputs.should_run == 'true' }}
         uses: github/codeql-action/init@v4
         with:
-          languages: actions
+          languages: ${{ matrix.language }}
           build-mode: none
           config-file: .github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
-        if: steps.filter.outputs.workflows == 'true'
+        if: ${{ steps.run.outputs.should_run == 'true' }}
         uses: github/codeql-action/analyze@v4
         with:
-          category: /language:actions
+          category: /language:${{ matrix.language }}
