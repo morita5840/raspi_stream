@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   analyze-rust:
-    name: CodeQL Analysis (rust)
+    name: CodeQL Analysis (${{ matrix.kind }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
