@@ -1,0 +1,5 @@
+[advisories]
+yanked = "deny"
+ignore = [
+	"RUSTSEC-2024-0436",
+]

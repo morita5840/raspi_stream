@@ -1,0 +1,48 @@
+name: Cargo Deny
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - deny.toml
+      - .github/workflows/cargo-deny.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - deny.toml
+      - .github/workflows/cargo-deny.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * 0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cargo-deny-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  advisories:
+    name: Cargo Deny Advisories
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+
+      - name: Run cargo-deny advisories check
+        run: cargo deny check advisories
