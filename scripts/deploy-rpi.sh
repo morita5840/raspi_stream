@@ -175,12 +175,14 @@ if [[ ! -f "$local_binary" ]]; then
 fi
 
 echo "==> preparing remote directory"
+# shellcheck disable=SC2029
 ssh "${ssh_opts[@]}" "$ssh_target" "mkdir -p $(printf '%q' "$remote_dir")"
 
 echo "==> copying binary"
 scp "${scp_opts[@]}" "$local_binary" "$ssh_target:$remote_binary"
 
 echo "==> finalizing remote binary"
+# shellcheck disable=SC2029
 ssh "${ssh_opts[@]}" "$ssh_target" "chmod +x $(printf '%q' "$remote_binary")"
 
 echo "deployment complete"

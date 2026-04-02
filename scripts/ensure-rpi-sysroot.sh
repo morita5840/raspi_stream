@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-repo_dir=$(CDPATH= cd -- "$script_dir/.." && pwd)
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+repo_dir=$(CDPATH='' cd -- "$script_dir/.." && pwd)
 sysroot="$repo_dir/vendor/rpi-sysroot"
 version_file="$sysroot/version.txt"
 cache_dir="$repo_dir/vendor/.rpi-sysroot-cache"
@@ -106,7 +106,7 @@ cleanup_stale_temp_dirs() {
 run_cross_pkg_config_probe() {
     PKG_CONFIG_SYSROOT_DIR="$sysroot" \
     PKG_CONFIG_LIBDIR="$sysroot/usr/lib/aarch64-linux-gnu/pkgconfig:$sysroot/usr/lib/pkgconfig:$sysroot/usr/share/pkgconfig" \
-    PKG_CONFIG_PATH= \
+    PKG_CONFIG_PATH='' \
         pkg-config --libs --cflags glib-2.0 gstreamer-rtsp-server-1.0 >/dev/null 2>&1
 }
 
@@ -277,6 +277,7 @@ install_missing_sysroot_packages() {
     mkdir -p "$cache_dir/debian-packages"
     download_debian_packages_index "$packages_archive"
 
+    # shellcheck disable=SC2086
     package_map=$(python3 - "$packages_archive" $required_sysroot_packages <<'PY'
 import lzma
 import sys
@@ -333,7 +334,7 @@ prepare_sysroot() {
     env_true "${RPI_SYSROOT_SKIP:-}" && return 0
 
     latest_sha=$(fetch_latest_sha256)
-    current_sha=$(cat "$version_file" 2>/dev/null | tr -d '[:space:]' || true)
+    current_sha=$(tr -d '[:space:]' < "$version_file" 2>/dev/null || true)
 
     if [ "$current_sha" = "$latest_sha" ] \
         && [ -d "$sysroot/usr" ] \

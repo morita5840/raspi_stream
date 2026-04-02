@@ -32,26 +32,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Lint workflow files with actionlint
+      - name: Lint workflows, workflow bash, and referenced local actions
         uses: raven-actions/actionlint@v2
         with:
           files: .github/workflows/*.yml, .github/workflows/*.yaml
-
-      - name: Validate composite action metadata
-        shell: bash
-        run: |
-          set -euo pipefail
-          ruby <<'RUBY'
-          require 'yaml'
-
-          Dir.glob('.github/actions/**/action.y{a,}ml').sort.each do |path|
-            data = YAML.load_file(path)
-            raise "#{path}: top-level YAML must be a mapping" unless data.is_a?(Hash)
-            raise "#{path}: missing non-empty name" unless data['name'].is_a?(String) && !data['name'].empty?
-
-            runs = data['runs']
-            raise "#{path}: missing runs section" unless runs.is_a?(Hash)
-            raise "#{path}: runs.using must be composite" unless runs['using'] == 'composite'
-            raise "#{path}: runs.steps must be a non-empty array" unless runs['steps'].is_a?(Array) && !runs['steps'].empty?
-          end
-          RUBY
+          shellcheck: true
+          pyflakes: false

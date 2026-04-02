@@ -1,0 +1,44 @@
+name: Shell Source Lint
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/**
+      - .github/actions/**
+      - .github/workflows/shellcheck.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - scripts/**
+      - .github/actions/**
+      - .github/workflows/shellcheck.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shellcheck-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shellcheck:
+    name: Repository Shell Sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Lint repository shell scripts
+        run: shellcheck scripts/*
+
+      - name: Lint composite action bash steps
+        run: ./scripts/lint-composite-actions.sh
