@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   advisories:
-    name: Cargo Deny Advisories
+    name: Cargo Deny
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -44,5 +44,5 @@ jobs:
       - name: Install cargo-deny
         uses: taiki-e/install-action@cargo-deny
 
-      - name: Run cargo-deny advisories check
-        run: cargo deny check advisories
+      - name: Run cargo-deny check
+        run: cargo deny check
