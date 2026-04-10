@@ -80,6 +80,8 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ matrix.language }}" == "actions" && "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=${{ steps.filter.outputs[matrix.filter_name] }}" >> "$GITHUB_OUTPUT"
           fi
