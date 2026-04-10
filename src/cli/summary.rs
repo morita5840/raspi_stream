@@ -1,6 +1,7 @@
 use std::net::{IpAddr, UdpSocket};
 
 use crate::cli::args::CliOptions;
+use raspi_stream::gst_support::sanitize_for_display;
 use raspi_stream::{Imx500Source, StartupDiagnostic, StreamConfig, StreamSource};
 
 pub(crate) fn startup_summary_lines(
@@ -8,14 +9,18 @@ pub(crate) fn startup_summary_lines(
     config: &StreamConfig,
     resolved_source: &str,
 ) -> Vec<String> {
+    let host_display = sanitize_for_display(&options.host);
+    let path_display = sanitize_for_display(&options.path);
+    let resolved_display = sanitize_for_display(resolved_source);
+
     let mut lines = vec![
-        format!("  bind host : {}", options.host),
+        format!("  bind host : {}", host_display),
         format!("  port      : {}", options.port),
-        format!("  path      : {}", options.path),
-        format!("  source    : {resolved_source}"),
+        format!("  path      : {}", path_display),
+        format!("  source    : {resolved_display}"),
         format!(
             "  bind url  : rtsp://{}:{}{}",
-            options.host, options.port, options.path
+            host_display, options.port, path_display
         ),
         format!("  resolution: {}x{}", options.width, options.height),
         format!("  fps       : {}", options.framerate),
@@ -50,7 +55,7 @@ pub(crate) fn startup_diagnostic_note_lines(diagnostics: &[StartupDiagnostic]) -
 fn imx500_tuning_summary_lines(source: &Imx500Source) -> Vec<String> {
     let tuning = source.tuning();
     let mut lines = vec![match source.camera_name() {
-        Some(camera_name) => format!("  camera    : {camera_name}"),
+        Some(camera_name) => format!("  camera    : {}", sanitize_for_display(camera_name)),
         None => "  camera    : <default>".to_string(),
     }];
 
@@ -84,7 +89,12 @@ fn client_access_summary_lines(
 ) -> Vec<String> {
     match host {
         "0.0.0.0" => match detected_host {
-            Some(detected_host) => vec![format!("  client url: rtsp://{detected_host}:{port}{path}")],
+            Some(detected_host) => vec![format!(
+                "  client url: rtsp://{}:{}{}",
+                sanitize_for_display(&detected_host),
+                port,
+                sanitize_for_display(path)
+            )],
             None => vec![
                 format!("  client url: rtsp://<raspberry-pi-ip>:{port}{path}"),
                 "  note      : replace <raspberry-pi-ip> with an address reachable from the client"
@@ -92,7 +102,12 @@ fn client_access_summary_lines(
             ],
         },
         "::" => match detected_host {
-            Some(detected_host) => vec![format!("  client url: rtsp://[{detected_host}]:{port}{path}")],
+            Some(detected_host) => vec![format!(
+                "  client url: rtsp://[{}]:{}{}",
+                sanitize_for_display(&detected_host),
+                port,
+                sanitize_for_display(path)
+            )],
             None => vec![
                 format!("  client url: rtsp://[<raspberry-pi-ipv6>]:{port}{path}"),
                 "  note      : replace <raspberry-pi-ipv6> with an address reachable from the client"
@@ -102,7 +117,12 @@ fn client_access_summary_lines(
         "127.0.0.1" | "localhost" => {
             vec!["  access    : local machine only".to_string()]
         }
-        _ => vec![format!("  client url: rtsp://{host}:{port}{path}")],
+        _ => vec![format!(
+            "  client url: rtsp://{}:{}{}",
+            sanitize_for_display(host),
+            port,
+            sanitize_for_display(path)
+        )],
     }
 }
 

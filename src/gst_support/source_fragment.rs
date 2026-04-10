@@ -43,7 +43,10 @@ pub fn build_videotestsrc_fragment(
     append_raw_property(&mut fragment, "is-live", is_live);
 
     if let Some(pattern) = pattern {
-        append_quoted_property(&mut fragment, "pattern", pattern);
+        let sanitized = crate::gst_support::value_format::sanitize_videotest_pattern(pattern);
+        if !sanitized.is_empty() {
+            append_quoted_property(&mut fragment, "pattern", &sanitized);
+        }
     }
 
     fragment
@@ -74,6 +77,14 @@ mod tests {
         assert_eq!(
             build_videotestsrc_fragment(true, Some("ball"), Some(1)),
             "videotestsrc num-buffers=1 is-live=true pattern=\"ball\""
+        );
+    }
+
+    #[test]
+    fn videotestsrc_fragment_sanitizes_pattern() {
+        assert_eq!(
+            build_videotestsrc_fragment(true, Some("ball ! udpsink host=1"), Some(1)),
+            "videotestsrc num-buffers=1 is-live=true pattern=\"balludpsinkhost1\""
         );
     }
 }
