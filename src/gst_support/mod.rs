@@ -15,3 +15,4 @@ pub use probe_reporting::{
 pub use source_fragment::{
     build_libcamerasrc_fragment, build_v4l2src_fragment, build_videotestsrc_fragment,
 };
+pub use value_format::{sanitize_for_display, sanitize_videotest_pattern};
