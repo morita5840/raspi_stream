@@ -51,10 +51,13 @@ impl RuntimeSessionHandle {
 mod tests {
     use std::time::Duration;
 
-    use crate::{StreamConfig, StreamEvent, StreamSource, runtime::RuntimeSessionHandle};
+    use crate::{
+        StreamConfig, StreamEvent, StreamSource, ensure_gstreamer_init_for_tests,
+        runtime::RuntimeSessionHandle,
+    };
 
     fn development_source() -> Option<StreamSource> {
-        gstreamer::init().expect("gstreamer init should succeed");
+        ensure_gstreamer_init_for_tests();
 
         gstreamer::ElementFactory::find("videotestsrc").map(|_| StreamSource::videotest())
     }

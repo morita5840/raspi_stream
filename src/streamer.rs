@@ -131,11 +131,11 @@ mod tests {
 
     use crate::{
         CameraStreamer, Imx500Source, StreamConfig, StreamError, StreamEvent, StreamSession,
-        StreamSource, V4l2Source, VideoTestSource, pipeline,
+        StreamSource, V4l2Source, VideoTestSource, ensure_gstreamer_init_for_tests, pipeline,
     };
 
     fn development_source() -> Option<StreamSource> {
-        gstreamer::init().expect("gstreamer init should succeed");
+        ensure_gstreamer_init_for_tests();
 
         gstreamer::ElementFactory::find("videotestsrc")
             .map(|_| StreamSource::VideoTest(VideoTestSource::new().with_pattern("ball")))
@@ -175,7 +175,11 @@ mod tests {
                 .with_source(source),
         );
 
-        assert!(streamer.start().is_ok());
+        let session = streamer
+            .start()
+            .expect("valid videotest configuration should start");
+
+        assert_eq!(session.stop(), Ok(()));
     }
 
     #[test]
