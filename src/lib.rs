@@ -59,3 +59,12 @@ pub use diagnostic::{StartupDiagnostic, StartupDiagnosticKind};
 pub use error::StreamError;
 pub use event::StreamEvent;
 pub use streamer::{CameraStreamer, StreamSession};
+
+#[cfg(test)]
+pub(crate) fn ensure_gstreamer_init_for_tests() {
+    static GST_INIT: std::sync::Once = std::sync::Once::new();
+
+    GST_INIT.call_once(|| {
+        gstreamer::init().expect("gstreamer init should succeed");
+    });
+}

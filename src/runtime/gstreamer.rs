@@ -257,9 +257,12 @@ fn launch_rtsp_server(
         .map_err(|_| StreamError::RuntimeError("failed to attach RTSP server".to_string()))?;
 
     *startup_reported = true;
-    let _ = started_tx.send(Ok(()));
-    let _ = event_tx.send(StreamEvent::Started {
-        stream_url: thread_config.stream_url.clone(),
+    let started_tx = started_tx.clone();
+    let started_event_tx = event_tx.clone();
+    let stream_url = thread_config.stream_url.clone();
+    context.invoke(move || {
+        let _ = started_tx.send(Ok(()));
+        let _ = started_event_tx.send(StreamEvent::Started { stream_url });
     });
 
     main_loop.run();
