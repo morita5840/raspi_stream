@@ -49,7 +49,7 @@ mod tests {
 
         let source = source::build_source_fragment(&config);
 
-        assert_eq!(source, "videotestsrc is-live=true pattern=ball");
+        assert_eq!(source, "videotestsrc is-live=true pattern=\"ball\"");
     }
 
     #[test]

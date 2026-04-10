@@ -43,7 +43,7 @@ pub fn build_videotestsrc_fragment(
     append_raw_property(&mut fragment, "is-live", is_live);
 
     if let Some(pattern) = pattern {
-        append_raw_property(&mut fragment, "pattern", pattern);
+        append_quoted_property(&mut fragment, "pattern", pattern);
     }
 
     fragment
@@ -73,7 +73,7 @@ mod tests {
     fn videotestsrc_fragment_supports_optional_pattern() {
         assert_eq!(
             build_videotestsrc_fragment(true, Some("ball"), Some(1)),
-            "videotestsrc num-buffers=1 is-live=true pattern=ball"
+            "videotestsrc num-buffers=1 is-live=true pattern=\"ball\""
         );
     }
 }

@@ -27,7 +27,7 @@ mod tests {
 
         let description = pipeline::build_stream_pipeline(&config);
 
-        assert!(description.contains("videotestsrc is-live=true pattern=ball"));
+        assert!(description.contains("videotestsrc is-live=true pattern=\"ball\""));
         assert!(description.contains("videoconvert"));
         assert!(description.contains("video/x-raw,format=I420"));
         assert!(description.contains("vp8enc"));

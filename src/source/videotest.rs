@@ -20,6 +20,6 @@ mod tests {
     fn build_source_fragment_uses_pattern() {
         let source = videotest::build_source_fragment(&VideoTestSource::new().with_pattern("ball"));
 
-        assert_eq!(source, "videotestsrc is-live=true pattern=ball");
+        assert_eq!(source, "videotestsrc is-live=true pattern=\"ball\"");
     }
 }
