@@ -81,7 +81,14 @@ where
             "--saturation" => options.saturation = Some(parse_value(&mut args, "--saturation")?),
             "--sharpness" => options.sharpness = Some(parse_value(&mut args, "--sharpness")?),
             "--device-path" => options.device_path = Some(next_value(&mut args, "--device-path")?),
-            "--pattern" => options.pattern = Some(next_value(&mut args, "--pattern")?),
+            "--pattern" => {
+                let val = next_value(&mut args, "--pattern")?;
+                let sanitized = raspi_stream::gst_support::sanitize_videotest_pattern(&val);
+                if sanitized != val {
+                    return Err("invalid value for --pattern: only ASCII letters, digits, '_' and '-' are allowed".to_string());
+                }
+                options.pattern = Some(val);
+            }
             "--width" => options.width = parse_value(&mut args, "--width")?,
             "--height" => options.height = parse_value(&mut args, "--height")?,
             "--framerate" => options.framerate = parse_value(&mut args, "--framerate")?,
@@ -186,5 +193,20 @@ mod tests {
         let options = parse_args(["--verbose".to_string()]).expect("parse_args should succeed");
 
         assert!(options.verbose);
+    }
+
+    #[test]
+    fn parse_args_rejects_invalid_videotest_pattern() {
+        let res = parse_args(["--pattern".to_string(), "ball ! udpsink host=1".to_string()]);
+
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn parse_args_accepts_valid_videotest_pattern() {
+        let options = parse_args(["--pattern".to_string(), "ball_1-2".to_string()])
+            .expect("parse_args should succeed");
+
+        assert_eq!(options.pattern, Some("ball_1-2".to_string()));
     }
 }
