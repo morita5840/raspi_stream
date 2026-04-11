@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::Path;
 
 use crate::cli::args::CliOptions;
 use crate::cli::probe::{
@@ -256,22 +257,56 @@ where
 }
 
 fn list_v4l2_device_paths() -> Result<Vec<String>, String> {
-    let entries = fs::read_dir("/dev")
-        .map_err(|error| format!("failed to scan /dev for v4l2 devices: {error}"))?;
+    list_v4l2_device_paths_in(Path::new("/dev"))
+}
 
-    let mut device_paths = entries
-        .filter_map(Result::ok)
-        .filter_map(|entry| {
-            let file_name = entry.file_name();
-            let file_name = file_name.to_string_lossy();
+fn list_v4l2_device_paths_in(dir: &Path) -> Result<Vec<String>, String> {
+    let entries = fs::read_dir(dir)
+        .map_err(|error| format!("failed to scan {dir:?} for v4l2 devices: {error}"))?;
 
-            if !file_name.starts_with("video") {
-                return None;
+    let mut device_paths = Vec::new();
+
+    for entry_res in entries {
+        let entry = match entry_res {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+
+        let file_name = entry.file_name();
+        let file_name = file_name.to_string_lossy();
+
+        if !file_name.starts_with("video") {
+            continue;
+        }
+
+        let path = entry.path();
+
+        // Avoid following symlinks: use symlink_metadata and accept only
+        // character device nodes on Unix. Non-Unix platforms fall back to
+        // rejecting symlinks and accepting regular entries (best-effort).
+        match fs::symlink_metadata(&path) {
+            Ok(meta) => {
+                let ft = meta.file_type();
+
+                #[cfg(unix)]
+                {
+                    use std::os::unix::fs::FileTypeExt;
+
+                    if ft.is_char_device() {
+                        device_paths.push(path.display().to_string());
+                    }
+                }
+
+                #[cfg(not(unix))]
+                {
+                    if !ft.is_symlink() {
+                        device_paths.push(path.display().to_string());
+                    }
+                }
             }
-
-            Some(entry.path().display().to_string())
-        })
-        .collect::<Vec<_>>();
+            Err(_) => continue,
+        }
+    }
 
     sort_v4l2_device_paths(&mut device_paths);
     Ok(device_paths)

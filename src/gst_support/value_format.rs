@@ -1,5 +1,8 @@
 pub(crate) fn escape_gst_value(value: &str) -> String {
-    value.replace('\\', "\\\\").replace('"', "\\\"")
+    // First sanitize control characters and ANSI sequences to avoid
+    // injecting control bytes into a GStreamer launch description.
+    let sanitized = sanitize_for_display(value);
+    sanitized.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 pub fn sanitize_for_display(value: &str) -> String {
@@ -103,5 +106,14 @@ mod tests {
     fn sanitize_for_display_strips_control_and_ansi_sequences() {
         assert_eq!(sanitize_for_display("hello\x1b[31mred\x1b[0m"), "hellored");
         assert_eq!(sanitize_for_display("line1\nline2"), "line1 line2");
+    }
+
+    #[test]
+    fn escape_gst_value_removes_control_and_newlines() {
+        assert_eq!(escape_gst_value("a\nb\"c"), "a b\\\"c");
+        assert_eq!(
+            escape_gst_value("hello\x1b[31mred\x1b[0m\"end"),
+            "hellored\\\"end"
+        );
     }
 }
